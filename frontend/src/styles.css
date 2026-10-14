@@ -1,0 +1,75 @@
+/* Native CPR components own their appearance. Only public-root layout and
+   content typography live here; no private component DOM or custom widgets. */
+body { margin: 0; background: transparent; color: var(--cp-color-text); }
+.dialogue-page { display: flex; flex-direction: column; gap: 20px; width: 100%; min-width: 0; margin-inline: auto; padding: 4px 0 20px; }
+.test-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
+.test-board > *, .question-options > *, .run-numbers > * { min-width: 0; }
+/* ZSelect's absolute multiple trigger needs an explicit width even when empty. */
+.field-control { width: 100%; min-width: 0; max-width: 100%; }
+.target-card { min-height: 438px; }
+.list-body { display: flex; flex-direction: column; gap: 12px; min-width: 0; flex: 1; }
+.selection-scroll, .task-scroll { min-width: 0; }
+.selection-list { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.selection-row { display: flex; width: 100%; min-width: 0; padding: 11px 4px; box-sizing: border-box; }
+.list-label { display: block; overflow-wrap: anywhere; line-height: 1.45; }
+.list-meta { display: block; margin-top: 3px; color: var(--cp-color-text-secondary); font-size: 12px; line-height: 1.3; font-weight: 400; }
+/* Model labels use the native checkbox / table typography. */
+.model-toolbar { display: flex; justify-content: flex-end; margin-top: auto; }
+.question-body { display: flex; flex-direction: column; gap: 16px; min-width: 0; flex: 1; }
+.question-options { display: grid; grid-template-columns: minmax(0, 1fr) minmax(160px, 1.15fr); gap: 12px; }
+.preset-actions { display: flex; gap: 4px; flex-wrap: wrap; margin-top: auto; justify-content: flex-end; }
+.tasks-card { grid-column: span 2; }
+.run-form { display: grid; gap: 18px; min-width: 0; }
+.run-numbers { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 12px; }
+.run-actions { display: grid; gap: 10px; }
+.start-button { width: 100%; }
+.actions, .answer-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.run-actions .actions > * { flex: 1; }
+.task-label { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.secondary { color: var(--cp-color-text-secondary); font-size: var(--cp-font-size, 14px); line-height: 1.6; margin: 4px 0; }
+.footnote { color: var(--cp-color-text-secondary); font-size: 12px; line-height: 1.6; margin: 12px 0 0; }
+.run-form .footnote { margin: 0; }
+.capacity-warning { color: var(--cp-color-error-text, var(--cp-color-text)); font-size: 13px; margin: 0 0 12px; }
+.feedback { white-space: normal; }
+.answer-cell { min-width: 0; padding: 5px 0; }
+.answer-text { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 240px; overflow: auto; line-height: 1.65; }
+.error-text { color: var(--cp-color-error-text, var(--cp-color-text-secondary)); }
+.answer-actions { margin-top: 4px; }
+.preset-preview { white-space: pre-wrap; overflow-wrap: anywhere; padding-right: 12px; }
+.preset-scroll { min-width: 0; }
+.detail-json { white-space: pre-wrap; overflow-wrap: anywhere; font-family: monospace; font-size: 12px; line-height: 1.65; max-height: 380px; overflow: auto; }
+@media (max-width: 900px) {
+  .test-board { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .question-card { grid-column: 1 / -1; min-height: auto; }
+  .tasks-card, .run-card { grid-column: 1 / -1; }
+  .run-form { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); align-items: end; }
+  .run-actions, .run-form > .footnote { grid-column: 1 / -1; }
+}
+@media (max-width: 560px) {
+  .dialogue-page { gap: 16px; }
+  .test-board { grid-template-columns: minmax(0, 1fr); }
+  .target-card { min-height: auto; }
+  .account-card, .model-card { grid-column: 1 / -1; }
+  .run-form { grid-template-columns: minmax(0, 1fr); }
+  .matrix-description { display: block; margin-top: 4px; }
+}
+
+/* The native dialog remains inside its sandbox. Its public ARIA overlay roots
+   are positioned against the browser-reported visible intersection, not the
+   auto-sized iframe document. Appearance, focus trap and content scrollbar
+   remain entirely native; no parent document access or sandbox relaxation. */
+body[data-dialogue-viewport] > [role="presentation"] {
+  grid-template-columns: minmax(0, 1fr);
+  top: var(--dialogue-visible-top, 0px);
+  left: var(--dialogue-visible-left, 0px);
+  right: auto;
+  bottom: auto;
+  width: var(--dialogue-visible-width, 100vw);
+  height: var(--dialogue-visible-height, 100dvh);
+}
+body[data-dialogue-viewport] [aria-modal="true"] {
+  max-height: max(1px, calc(var(--dialogue-visible-height, 100dvh) - 1.5rem));
+}
+@media (min-width: 640px) {
+  body[data-dialogue-viewport] [aria-modal="true"] { max-height: max(1px, calc(var(--dialogue-visible-height, 100dvh) - 3rem)); }
+}

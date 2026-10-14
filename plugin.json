@@ -1,0 +1,77 @@
+{
+  "manifestVersion": 2,
+  "name": "account-dialogue",
+  "displayName": "账号对话测试",
+  "publisher": "donzy",
+  "version": "0.4.1",
+  "description": "账号 × 模型 × 思考等级任务清单、并发对话测试与执行账号核对",
+  "license": "Apache-2.0",
+  "author": "Donzy",
+  "engines": {
+    "codex-proxy-rs": ">=3.25.0, <4.0.0"
+  },
+  "main": "bin/plugin",
+  "runtime": "trustedProcess",
+  "contributes": {
+    "management": {}
+  },
+  "configurationSchema": {
+    "type": "object",
+    "properties": {},
+    "additionalProperties": false
+  },
+  "resources": {
+    "web/index.html": "text/html",
+    "web/app.js": "text/javascript",
+    "web/app.css": "text/css"
+  },
+  "state": [
+    {
+      "namespace": "prompt-presets",
+      "schemaVersion": 1,
+      "schema": {
+        "type": "object",
+        "required": [
+          "presets"
+        ],
+        "properties": {
+          "presets": {
+            "type": "array",
+            "maxItems": 32,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "name",
+                "prompt"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "prompt": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16384
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "maximumRecords": 1,
+      "maximumBytes": 65536,
+      "maximumValueBytes": 65536,
+      "migratesFrom": []
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+CPR Account Dialogue Plugin
+Copyright 2026 Donzy. Apache License 2.0.
+
+Includes an unmodified copy of gateway-plugin-sdk from the existing local
+CPR v3.25.0 SDK contract. Original project: zyycn/codex-proxy-rs.
+The SDK's own license and notices remain in vendor/gateway-plugin-sdk.
+No account data, API keys, passwords or deployment evidence are packaged.
+
+Frontend uses official @codex-proxy/ui 0.4.0 (Apache-2.0), Vue 3 (MIT),
+@lucide/vue (ISC), and their bundled dependencies. Sources and original
+license notices are retained with the locked installed packages; no UI
+component source is modified. UI package archive is vendored for builds.
