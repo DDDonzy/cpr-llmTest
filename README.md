@@ -1,6 +1,6 @@
 # CPR LLM Test — 账号对话测试插件
 
-Codex Proxy RS（CPR）的独立管理插件 **`donzy.account-dialogue`**，当前版本 **v0.4.1**。支持指定账号、模型、思考等级和自定义问题，批量进行真实对话测试。
+Codex Proxy RS（CPR）的独立管理插件 **`donzy.account-dialogue`**，当前版本 **v0.4.2**。支持指定账号、模型、思考等级和自定义问题，批量进行真实对话测试。
 
 ## 功能
 
@@ -16,12 +16,12 @@ Codex Proxy RS（CPR）的独立管理插件 **`donzy.account-dialogue`**，当�
 
 ## 安装
 
-1. 从本仓库 **Releases** 下载 `donzy.account-dialogue-0.4.1-aarch64-unknown-linux-gnu.tar.gz` 及对应 `.sha256` 文件。
+1. 从本仓库 **Releases** 下载 `donzy.account-dialogue-0.4.2-aarch64-unknown-linux-gnu.tar.gz` 及对应 `.sha256` 文件。
 2. 核对 SHA256；不要解压重打包。
 3. 在 CPR 原生插件管理中上传安装包，并启用该插件。
 4. 从「插件 → 账号对话测试」打开页面。
 
-**兼容性：** CPR `>=3.25.0, <4.0.0`；本次发行的二进制适用于 **Linux ARM64（aarch64）**，不是 Windows 或 x86_64 包。后端实际使用 `aarch64-unknown-linux-musl` 目标交叉编译；安装包文件名沿用 CPR 包命名约定，包清单标记 `linux/aarch64`。
+**兼容性：** CPR `>=3.29.1, <4.0.0`；本次发行的二进制适用于 **Linux ARM64（aarch64）**，不是 Windows 或 x86_64 包。后端实际使用 `aarch64-unknown-linux-musl` 目标交叉编译；安装包文件名沿用 CPR 包命名约定，包清单标记 `linux/aarch64`。
 
 插件使用 `trustedProcess` 运行时。仅安装你信任的插件发行包。
 
@@ -39,7 +39,7 @@ Codex Proxy RS（CPR）的独立管理插件 **`donzy.account-dialogue`**，当�
 
 ### 超时与并发
 
-默认超时输入值为 **180 秒**，但当前 CPR 3.25.0 宿主管理调用最长为 **120 秒**。插件预留 8 秒收尾，当前有效测试期限最多约 **112 秒**，上游限制还可能使请求更早结束。页面明确显示配置值和有效期限，结果也记录二者。**此版本不宣称已支持实际等待满 180 秒。** 延长实际期限需要宿主提供相应支持，本插件不修改 CPR 本体、SDK 或宿主期限。
+默认超时输入值为 **180 秒**，但当前已验证的 CPR 3.29.1 宿主管理调用最长为 **120 秒**。插件预留 8 秒收尾，当前有效测试期限最多约 **112 秒**，上游限制还可能使请求更早结束。页面明确显示配置值和有效期限，结果也记录二者。**此版本不宣称已支持实际等待满 180 秒。** 延长实际期限需要宿主提供相应支持，本插件不修改 CPR 本体、SDK 或宿主期限。
 
 模型测试按所选并发进行批次派发，一个批次使用一个管理调用，避免每个模型独占一个页面管理请求。管理桥请求使用有界传输队列；它不是用户模型并发上限。宿主资源、Key、账号和上游的容量限制仍正常生效。设置很高的并发可能被宿主拒绝或产生容量错误，不会绕过这些限制。
 
@@ -85,7 +85,7 @@ cargo clippy --manifest-path backend/Cargo.toml --all-targets --locked -- -D war
 
 构建运行 Vue/TypeScript 检查、Vite IIFE 打包、JS 语法检查、Rust 单测、真实插件进程 IPC 测试，再交叉编译、生成清单资源哈希、安装包及 SHA256。
 
-v0.4.1 已通过 **35 项自动测试**（Rust 8、IPC 19、UI/组合逻辑 8），包含 10 个同时执行的模拟模型流、任务筛选、防重复、并发控制、暂停/取消、预设 CAS 和输入边界。
+v0.4.2 已通过 **35 项自动测试**（Rust 8、IPC 19、UI/组合逻辑 8），包含 10 个同时执行的模拟模型流、任务筛选、防重复、并发控制、暂停/取消、预设 CAS 和输入边界。
 
 本地 UI 模拟：
 
@@ -97,6 +97,6 @@ node Scripts/preview.mjs
 
 ## 许可与依赖
 
-Apache-2.0，详见 `LICENSE` 和 `NOTICE`。包含未修改的官方 `gateway-plugin-sdk` 以及固定版本 `@codex-proxy/ui 0.4.0`；保留依赖许可。前端使用 Vue 3 与 Lucide 图标。
+Apache-2.0，详见 `LICENSE` 和 `NOTICE`。包含固定取自 CPR v3.29.1 的官方 `gateway-plugin-sdk`（协议 v4、management 合同 v2；仅展开 Cargo workspace 元数据）以及固定版本 `@codex-proxy/ui 0.4.0`；保留依赖许可。前端使用 Vue 3 与 Lucide 图标。
 
 发行包和源码不包含真实账号数据、API 密钥、密码或部署备份。

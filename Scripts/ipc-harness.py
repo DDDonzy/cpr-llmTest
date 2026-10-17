@@ -10,8 +10,8 @@ class Harness:
   self.proc=subprocess.Popen([str(BIN)],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
   self.frames=queue.Queue();self.read_error=None;self.seq=99;self.accounts=[copy.deepcopy(ACCOUNT)];self.doc=doc;self.version=version;self.fail_put=fail_put;self.fail_native=fail_native;self.callbacks=[];self.http_requests=[];self.writes=[];self.bodies={};self.body_seq=0
   threading.Thread(target=self.reader,daemon=True).start()
-  self.send({'type':'hello','handshake':{'protocol_version':2,'artifact_sha256':'a'*64,'plugin_id':'donzy.account-dialogue','instance_id':'test-instance','generation':1,'incarnation':'test-incarnation','configuration':{},'contributes':MANIFEST['contributes']}})
-  ready,payload=self.read();assert ready['type']=='ready' and ready['protocol_version']==2 and not payload
+  self.send({'type':'hello','handshake':{'protocol_version':4,'artifact_sha256':'a'*64,'plugin_id':'donzy.account-dialogue','instance_id':'test-instance','generation':1,'incarnation':'test-incarnation','configuration':{},'contributes':MANIFEST['contributes']}})
+  ready,payload=self.read();assert ready['type']=='ready' and ready['protocol_version']==4 and not payload
   self.call('plugin.register',{},b'','registration')
  def reader(self):
   try:
@@ -23,10 +23,22 @@ class Harness:
      data+=part
     return data
    while True:
-    head=exact(12);n,b=struct.unpack('>IQ',head);meta=json.loads(exact(n));payload=exact(b);self.frames.put((meta,payload))
+    head=exact(12);n,b=struct.unpack('>IQ',head);meta=json.loads(exact(n));payload=exact(b)
+    request_bytes=meta.pop('request_context_bytes',0);data_bytes=meta.pop('data_bytes',0)
+    if request_bytes:meta['context']['request']=json.loads(payload[:request_bytes])
+    data=payload[request_bytes:request_bytes+data_bytes];payload=payload[request_bytes+data_bytes:]
+    if data_bytes:
+     value=json.loads(data)
+     if meta['type']=='hello':meta['handshake']['configuration']=value
+     else:meta['result' if meta['type']=='result' else 'params']=value
+    self.frames.put((meta,payload))
   except Exception as e:self.frames.put(e)
  def send(self,meta,payload=b''):
-  data=json.dumps(meta,separators=(',',':'),ensure_ascii=False).encode();assert len(data)<=65536;self.proc.stdin.write(struct.pack('>IQ',len(data),len(payload))+data+payload);self.proc.stdin.flush()
+  meta=copy.deepcopy(meta);business=b''
+  if meta['type']=='hello':business=json.dumps(meta['handshake'].pop('configuration'),separators=(',',':')).encode()
+  elif meta['type'] in ['call','callback','result']:business=json.dumps(meta.pop('result' if meta['type']=='result' else 'params'),separators=(',',':'),ensure_ascii=False).encode()
+  if business:meta['data_bytes']=len(business)
+  data=json.dumps(meta,separators=(',',':'),ensure_ascii=False).encode();assert len(data)<=65536;self.proc.stdin.write(struct.pack('>IQ',len(data),len(business)+len(payload))+data+business+payload);self.proc.stdin.flush()
  def read(self):
   f=self.frames.get(timeout=5)
   if isinstance(f,Exception):raise RuntimeError('Plugin exited unexpectedly: '+self.proc.stderr.read().decode(errors='replace')) from f

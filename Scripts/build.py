@@ -11,7 +11,7 @@ root=Path(subprocess.check_output(['rustc','--print','sysroot'],text=True).strip
 subprocess.run(['cargo','build','--manifest-path',str(R/'backend/Cargo.toml'),'--target','aarch64-unknown-linux-musl','--release','--locked'],env=env,check=True)
 normalizer=R/'backend/target/debug'/('cpr-account-dialogue.exe' if os.name=='nt' else 'cpr-account-dialogue');manifest=json.loads(subprocess.check_output([str(normalizer),'--print-manifest']))
 files={'bin/plugin':R/'backend/target/aarch64-unknown-linux-musl/release/cpr-account-dialogue',**{p:R/p for p in manifest['resources']}}
-manifest['package']={'protocolVersion':2,'target':{'os':'linux','architecture':'aarch64'},'files':{n:hashlib.sha256(f.read_bytes()).hexdigest() for n,f in sorted(files.items())}}
+manifest['package']={'protocolVersion':4,'target':{'os':'linux','architecture':'aarch64'},'files':{n:hashlib.sha256(f.read_bytes()).hexdigest() for n,f in sorted(files.items())}}
 name=f"donzy.account-dialogue-{manifest['version']}-aarch64-unknown-linux-gnu.tar.gz";out=R/'dist'/name
 contents={'plugin.json':json.dumps(manifest,ensure_ascii=False,indent=2).encode(),**{n:f.read_bytes() for n,f in files.items()}}
 with out.open('wb') as dst:

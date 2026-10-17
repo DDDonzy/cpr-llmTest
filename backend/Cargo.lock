@@ -3,6 +3,12 @@
 version = 4
 
 [[package]]
+name = "base64"
+version = "0.23.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ac07cdecf99051d9a5238b80f35af32cdeba5b336e55d957b318b50137e18da5"
+
+[[package]]
 name = "bytes"
 version = "1.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -10,7 +16,7 @@ checksum = "fc652a48c352aef3ea3aed32080501cf3ef6ed5da78602a020c991775b0aff04"
 
 [[package]]
 name = "cpr-account-dialogue"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "gateway-plugin-sdk",
  "serde",
@@ -22,6 +28,7 @@ dependencies = [
 name = "gateway-plugin-sdk"
 version = "0.1.0"
 dependencies = [
+ "base64",
  "semver",
  "serde",
  "serde_json",

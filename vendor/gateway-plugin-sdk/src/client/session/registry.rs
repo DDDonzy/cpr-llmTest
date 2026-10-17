@@ -10,7 +10,7 @@ use tokio::sync::oneshot;
 
 use crate::{Frame, Message, call::middleware::NEXT_METHOD};
 
-use super::super::frame::validate_frame;
+use super::super::frame::EncodedFrame;
 use super::{
     CallCancellation, CallDeadline, CallDeadlinePause, SessionError, credit::CreditWindow,
     output::Output,
@@ -67,7 +67,7 @@ impl HostClient {
             ordered = self.callbacks.order.lock() => ordered,
         };
         let managed_next = method == NEXT_METHOD;
-        let (id, received) = self.callbacks.begin(self.parent_id)?;
+        let (id, received) = self.callbacks.begin(self.parent_id, managed_next)?;
         let frame = Frame {
             message: Message::Callback {
                 id,
@@ -77,10 +77,10 @@ impl HostClient {
             },
             payload,
         };
-        if validate_frame(&frame).is_err() {
+        let frame = EncodedFrame::new(frame).map_err(|_| {
             self.callbacks.retire(id);
-            return Err(SessionError::Protocol);
-        }
+            SessionError::Protocol
+        })?;
         let sent = tokio::select! {
             biased;
             () = self.cancellation.cancelled() => Err(SessionError::Cancelled),
@@ -114,6 +114,7 @@ pub(super) struct CallbackRegistry {
     state: Mutex<CallbackState>,
     order: tokio::sync::Mutex<()>,
     maximum: usize,
+    maximum_next: usize,
     maximum_retired: usize,
 }
 
@@ -126,12 +127,13 @@ struct CallbackState {
 
 struct PendingCallback {
     parent_id: u64,
+    managed_next: bool,
     pause: Option<CallDeadlinePause>,
     result: oneshot::Sender<Result<HostReply, SessionError>>,
 }
 
 impl CallbackRegistry {
-    pub(super) fn new(maximum: usize) -> Self {
+    pub(super) fn new(maximum: usize, maximum_next: usize) -> Self {
         Self {
             state: Mutex::new(CallbackState {
                 next_id: 2,
@@ -141,19 +143,32 @@ impl CallbackRegistry {
             }),
             order: tokio::sync::Mutex::new(()),
             maximum,
-            maximum_retired: maximum.saturating_mul(2),
+            maximum_next,
+            maximum_retired: (maximum + maximum_next).saturating_mul(2),
         }
     }
 
     fn begin(
         &self,
         parent_id: u64,
+        managed_next: bool,
     ) -> Result<(u64, oneshot::Receiver<Result<HostReply, SessionError>>), SessionError> {
         let mut state = self
             .state
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
-        if state.pending.len() >= self.maximum {
+        let maximum = if managed_next {
+            self.maximum_next
+        } else {
+            self.maximum
+        };
+        if state
+            .pending
+            .values()
+            .filter(|pending| pending.managed_next == managed_next)
+            .count()
+            >= maximum
+        {
             return Err(SessionError::Capacity);
         }
         let id = state.next_id;
@@ -163,6 +178,7 @@ impl CallbackRegistry {
             id,
             PendingCallback {
                 parent_id,
+                managed_next,
                 result,
                 pause: None,
             },
