@@ -2,7 +2,7 @@ CPR Account Dialogue Plugin
 Copyright 2026 Donzy. Apache License 2.0.
 
 Includes an unmodified copy of gateway-plugin-sdk from the existing local
-CPR v3.29.1 SDK contract. Cargo workspace metadata is expanded for standalone builds. Original project: zyycn/codex-proxy-rs.
+CPR v3.29.7 SDK contract. Cargo workspace metadata is expanded for standalone builds. Original project: zyycn/codex-proxy-rs.
 The SDK's own license and notices remain in vendor/gateway-plugin-sdk.
 No account data, API keys, passwords or deployment evidence are packaged.
 

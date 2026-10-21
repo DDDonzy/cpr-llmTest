@@ -3,17 +3,19 @@
   "name": "account-dialogue",
   "displayName": "账号对话测试",
   "publisher": "donzy",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "账号 × 模型 × 思考等级任务清单、并发对话测试与执行账号核对",
   "license": "Apache-2.0",
   "author": "Donzy",
   "engines": {
-    "codex-proxy-rs": ">=3.29.1, <4.0.0"
+    "codex-proxy-rs": ">=3.29.7, <4.0.0"
   },
   "main": "bin/plugin",
   "runtime": "trustedProcess",
   "contributes": {
-    "management": {"version": 2}
+    "management": {
+      "version": 2
+    }
   },
   "configurationSchema": {
     "type": "object",
